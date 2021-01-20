@@ -12,6 +12,14 @@
  ************************************************************************/
 
 #include "merge.h"
+#include <sys/ipc.h> 
+#include <sys/shm.h> 
+#include <sys/wait.h> 
+
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <unistd.h> 
+#include <string.h>
 
 /* LEFT index and RIGHT index of the sub-array of ARR[] to be sorted */
 void singleProcessMergeSort(int arr[], int left, int right) 
@@ -29,6 +37,41 @@ void singleProcessMergeSort(int arr[], int left, int right)
  */
 void multiProcessMergeSort(int arr[], int left, int right) 
 {
+  /*
+  *fork
+  *if error
+  *   exit
+  *if child
+  *   sort one side
+  *   exit 
+  *if parent
+  *   sort other side
+  *   wait for child to finish
+  *   merge
+  */
 
-  // Your code goes here 
+  //create shared memory 
+  int shmid = shmget();
+  //cattach to shared mem 
+  int* shm = shmat (shmid, 0 , 0);
+  int middle = right/2;
+
+  //copy RIGHT side of local memory into shared mem
+  memcpy(shm, arr[middle+1],sizeof(int) * (right - middle - 1 ));
+
+  switch(fork()){
+    case -1:
+      exit(-1);
+    case 0:
+      //attach to shared mem
+      //sort shared mem
+      //detach from shared mem
+    default:
+      //sort LEFT side of LOCAL MEM
+      //wait for child to finish
+      //copy shared mem to RIGHT side of LOCAL MEM
+      //desotry shared mem
+      //merge LOCAL memory
+  }
+
 }
