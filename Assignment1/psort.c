@@ -24,13 +24,44 @@ void singleProcessMergeSort(int arr[], int left, int right)
   } 
 }
 
-/* 
- * This function stub needs to be completed
- */
+/*
+*fork
+*if error
+*   exit
+*if child
+*   sort one side
+*   exit 
+*if parent
+*   sort other side
+*   wait for child to finish
+*   merge
+*/
+
 void multiProcessMergeSort(int arr[], int left, int right) 
 {
-  // Delete this line, it's only here to fail the code quality check
-  int i = 0;
 
-  // Your code goes here 
+  // create share mem
+  // attach shared mem
+  
+  switch(fork()){
+    case -1:
+      exit(-1);
+    case 0:
+      //attach to shared mem
+      //sort shared mem
+      singleProcessMergeSort(shm, 0, right - middle - 1);
+      //detach from shared mem
+      exit(0);
+    case 1:
+      //sort LEFT side of LOCAL MEM
+      singleProcessMergeSort(arr, left, middle);
+      //wait for child to finish
+      wait(NULL);
+      //copy shared mem to RIGHT side of LOCAL MEM
+      memcpy(arr[middle + 1], shm, sizeof(shm));
+      //desotry shared mem
+      //merge LOCAL mem
+      merge(arr, left, right / 2, right);
+
+  }
 }

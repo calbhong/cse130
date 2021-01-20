@@ -51,13 +51,13 @@ void multiProcessMergeSort(int arr[], int left, int right)
   */
 
   //create shared memory 
-  int shmid = shmget();
+  int shmid = 0 //how to create shared mem?
   //cattach to shared mem 
   int* shm = shmat (shmid, 0 , 0);
   int middle = right/2;
 
   //copy RIGHT side of local memory into shared mem
-  memcpy(shm, arr[middle+1],sizeof(int) * (right - middle - 1 ));
+  memcpy(shm, &arr[middle+1],sizeof(int) * (right - middle));
 
   switch(fork()){
     case -1:
@@ -65,13 +65,21 @@ void multiProcessMergeSort(int arr[], int left, int right)
     case 0:
       //attach to shared mem
       //sort shared mem
+      singleProcessMergeSort(shm, 0, right - middle - 1);
       //detach from shared mem
+      shmdt(shm);
+      exit(0);
     default:
       //sort LEFT side of LOCAL MEM
+      singleProcessMergeSort(arr, left, middle);
       //wait for child to finish
+      wait(NULL);
       //copy shared mem to RIGHT side of LOCAL MEM
+      memcpy(arr[middle + 1], shm, sizeof(shm));
       //desotry shared mem
-      //merge LOCAL memory
+      shmdt(shm);
+      //merge LOCAL mem
+      merge(arr, left, right / 2, right);
   }
 
 }
