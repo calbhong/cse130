@@ -33,39 +33,33 @@ void singleProcessMergeSort(int arr[], int left, int right)
 }
 
 /* 
- * This function stub needs to be completed
+ * Implementation for UNIX Merge Sort
+ * Shared memory usage based on notes from Lecture 4
+ * Based on Pseudo code given during lecture 5
+ * Used the following link to learn memcpy : https://www.tutorialspoint.com/c_standard_library/c_function_memcpy.htm
  */
 void multiProcessMergeSort(int arr[], int left, int right) 
 {
-  /*
-  *fork
-  *if error
-  *   exit
-  *if child
-  *   sort one side
-  *   exit 
-  *if parent
-  *   sort other side
-  *   wait for child to finish
-  *   merge
-  */
 
-  //create shared memory 
-  int shmid = 0 //how to create shared mem?
-  //cattach to shared mem 
-  int* shm = shmat (shmid, 0 , 0);
   int middle = right/2;
+  //create shared memory, size of half the array
+  int shmid = shmget(IPC_PRIVATE,sizeof(int) * (right - middle), 0666|IPC_CREAT);
+  //attach to shared mem (do i need to typecast on shmat?)
+  int* shm = (int*)shmat(shmid, (void*)0 , 0);
+  
 
   //copy RIGHT side of local memory into shared mem
-  memcpy(shm, &arr[middle+1],sizeof(int) * (right - middle));
+  
 
-  switch(fork()){
+  switch(fork())
+  {
     case -1:
       exit(-1);
     case 0:
       //attach to shared mem
+      shm = (int*)shmat(shmid, (void*) 0, 0);
       //sort shared mem
-      singleProcessMergeSort(shm, 0, right - middle - 1);
+      singleProcessMergeSort(shm, 0, middle+1);
       //detach from shared mem
       shmdt(shm);
       exit(0);
@@ -75,11 +69,12 @@ void multiProcessMergeSort(int arr[], int left, int right)
       //wait for child to finish
       wait(NULL);
       //copy shared mem to RIGHT side of LOCAL MEM
-      memcpy(arr[middle + 1], shm, sizeof(shm));
-      //desotry shared mem
+      
+      //detach from shared mem
       shmdt(shm);
+      //destroy shared mem
+      shmctl(shmid,IPC_RMID,NULL);
       //merge LOCAL mem
-      merge(arr, left, right / 2, right);
+      merge(arr, left, mniddle, right);
   }
-
 }
