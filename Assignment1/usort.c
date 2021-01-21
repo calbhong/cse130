@@ -12,6 +12,7 @@
  ************************************************************************/
 
 #include "merge.h"
+//memory imports
 #include <sys/ipc.h> 
 #include <sys/shm.h> 
 #include <sys/wait.h> 
@@ -41,15 +42,15 @@ void singleProcessMergeSort(int arr[], int left, int right)
 void multiProcessMergeSort(int arr[], int left, int right) 
 {
 
-  int middle = right/2;
-  //create shared memory, size of half the array
-  int shmid = shmget(IPC_PRIVATE,sizeof(int) * (right - middle), 0666|IPC_CREAT);
+  int middle = (left+right) / 2;
+  int size = sizeof(int) * (middle + 1);
+  //create shared memory, size of right side of array 
+  int shmid = shmget(IPC_PRIVATE, size, 0666|IPC_CREAT);
   //attach to shared mem (do i need to typecast on shmat?)
-  int* shm = (int*)shmat(shmid, (void*)0 , 0);
+  int* shm = (int*)shmat(shmid, (void*)0, 0);
   
-
   //copy RIGHT side of local memory into shared mem
-  
+  memcpy(shm, &arr[middle+1],size);
 
   switch(fork())
   {
@@ -57,9 +58,9 @@ void multiProcessMergeSort(int arr[], int left, int right)
       exit(-1);
     case 0:
       //attach to shared mem
-      shm = (int*)shmat(shmid, (void*) 0, 0);
+      shm = (int*)shmat(shmid, (void*)0, 0);
       //sort shared mem
-      singleProcessMergeSort(shm, 0, middle+1);
+      singleProcessMergeSort(shm, 0, middle);
       //detach from shared mem
       shmdt(shm);
       exit(0);
@@ -69,12 +70,11 @@ void multiProcessMergeSort(int arr[], int left, int right)
       //wait for child to finish
       wait(NULL);
       //copy shared mem to RIGHT side of LOCAL MEM
-      
+      memcpy(&arr[middle + 1], shm, size);
       //detach from shared mem
       shmdt(shm);
       //destroy shared mem
-      shmctl(shmid,IPC_RMID,NULL);
-      //merge LOCAL mem
-      merge(arr, left, mniddle, right);
+      shmctl(shmid, IPC_RMID, NULL);
+      merge(arr, left, middle, right);
   }
 }
