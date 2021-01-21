@@ -36,7 +36,7 @@ void singleProcessMergeSort(int arr[], int left, int right)
 /* 
  * Implementation for UNIX Merge Sort
  * Shared memory usage based on notes from Lecture 4
- * Based on Pseudo code given during lecture 5
+ * Based on Pseudo code given during lecture 5 (PseudoCode 2)
  * Used the following link to learn memcpy : https://www.tutorialspoint.com/c_standard_library/c_function_memcpy.htm
  */
 void multiProcessMergeSort(int arr[], int left, int right) 
@@ -46,7 +46,7 @@ void multiProcessMergeSort(int arr[], int left, int right)
   int size = sizeof(int) * (middle + 1);
   //create shared memory, size of right side of array 
   int shmid = shmget(IPC_PRIVATE, size, 0666|IPC_CREAT);
-  //attach to shared mem (do i need to typecast on shmat?)
+  //attach to shared mem
   int* shm = (int*)shmat(shmid, (void*)0, 0);
   
   //copy RIGHT side of local memory into shared mem
