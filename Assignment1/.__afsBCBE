@@ -1,0 +1,28 @@
+
+ Multi Process: PASS
+ Multi Process: PASS
+ Multi Process: PASS
+ Multi Process: PASS
+ Multi Process: PASS
+ Multi Process: PASS
+ Multi Process: PASS
+ Multi Process: PASS
+ Multi Process: PASS
+ Multi Process: PASS
+
+          Functional:  10/10  100.0%
+
+   Speedup: PASS   (1.80 times faster)
+   Speedup: PASS   (1.78 times faster)
+   Speedup: PASS   (1.79 times faster)
+   Speedup: PASS   (1.79 times faster)
+   Speedup: PASS   (1.82 times faster)
+   Speedup: PASS   (1.79 times faster)
+   Speedup: PASS   (1.78 times faster)
+   Speedup: PASS   (1.80 times faster)
+   Speedup: PASS   (1.82 times faster)
+   Speedup: PASS   (1.82 times faster)
+
+      Non-Functional:  10/10  100.0%
+
+               Tests:  20/20  100.0% of 45%
